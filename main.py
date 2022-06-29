@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import emoji # pip install emoji
 
 
 class AbstractStorage(ABC):
@@ -89,7 +90,6 @@ class Store(AbstractStorage):
         return self._items
 
 
-
 class Shop(Store):
     def __init__(self):
         super().__init__()
@@ -114,10 +114,11 @@ class Request:
 
 
 def main():
+    product_status = ['В наличии', 'Отсутствует', 'Нужное количество есть', 'Нужного количества нет']
     # while(True):
     print('Введите ваш запрос')
-    user_input = input('Введите ваш запрос:')
-    user_input = 'Доставить 3 печеньки из склад в магазин'
+    # user_input = input('Введите ваш запрос:')
+    user_input = 'Доставить 40 печенька из склад в магазин'
     print(f'Ваш запрос:\n{user_input}')
     store = Store()
     shop = Shop()
@@ -126,10 +127,23 @@ def main():
         'кола': 10,
         'фанта': 20,
         'мороженка': 40,
+        'печенька': 40,
     }
 
     store.items = store_items
 
+    print(f'На складе содержится: {store.items}')
+
+    from_ = store if request.from_ == 'склад' else shop
+    to_ = store if request.to == 'склад' else shop
+
+    print(f'Продукция: {request.product.capitalize()}. \n'
+          f'Хранилище: {request.from_.capitalize()}. \n'
+          f'Статус: {product_status[0] if request.product in from_.items else product_status[1]}. \n'
+          f'Остаток: {product_status[2] if request.amount < from_.items[request.product] else product_status[3]}.')
+
+
+    # print(emoji.emojize(':OK_hand:'))
 
 if __name__ == '__main__':
     main()
