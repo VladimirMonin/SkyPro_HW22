@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-import emoji # pip install emoji
+import emoji  # pip install emoji
+from pprint import pprint
 
 
 class AbstractStorage(ABC):
@@ -77,6 +78,9 @@ class Store(AbstractStorage):
     @property
     def get_free_space(self):
         """Возвращает количество свободных мест"""
+        count = 0
+        for value in self._items.values(): count += int(value)
+        self._capacity -= count
         return self._capacity
 
     @property
@@ -113,7 +117,7 @@ class Request:
                f'{self.data[3]}{self.data[4]}{self.data[5]} {self.data[6]}'
 
 
-def main():
+def main_0():
     product_status = ['В наличии', 'Отсутствует', 'Нужное количество есть', 'Нужного количества нет']
     # while(True):
     print('Введите ваш запрос')
@@ -142,8 +146,104 @@ def main():
           f'Статус: {product_status[0] if request.product in from_.items else product_status[1]}. \n'
           f'Остаток: {product_status[2] if request.amount < from_.items[request.product] else product_status[3]}.')
 
-
     # print(emoji.emojize(':OK_hand:'))
+
+
+def main():
+    store = Store()
+    shop = Shop()
+    store_items = {
+        'кола': 10,
+        'фанта': 10,
+        'мороженка': 30,
+        'печенька': 20,
+    }
+
+    store.items = store_items
+
+    name = input('Введите ваше имя:').capitalize()
+    print(f'Привет, {name}!\n')
+    while (True):
+        choise = int(input(f'{name}, доступные действия:\n\n'
+                           f'1. Запросить содержимое СКЛАДА\n'
+                           f'2. Запросить содержимое МАГАЗИНА\n'
+                           f'3. Сделать перемещение товара из СКЛАДА в МАГАЗИН\n'
+                           f'4. Сделать перемещение товара из МАГАЗИНА на СКЛАД\n'
+                           f'5. Внести изменения на СКЛАДЕ (пополнение/корректировки)\n'
+                           f'6. Выход\n\n'
+                           f'Введи цифру:'))
+
+        if choise == 1:  # Отображение содержимого склада
+            if len((store.items.keys())) > 0:
+                print(f'{name}, продукция склада:\n')
+                for item, value in store.items.items(): print(f'{item.capitalize()}: {value}')
+            else:
+                print(f'{name}, склады пустые!!!')
+            print(f'Свободного места: {store.get_free_space}')
+
+        if choise == 2:  # Отображение содержимого магазина
+            if len((shop.items.keys())) > 0:
+                print(f'{name}, продукция магазина:\n')
+                for item, value in shop.items.items(): print(f'{item.capitalize()}: {value}')
+            else:
+                print(f'{name}, в магазине вообще нет продукции!')
+            print(f'Свободного места: {shop.get_free_space}')
+
+        if choise == 3:  # Сделать перемещение товара из СКЛАДА в МАГАЗИН (пульнем ООП по воробьям ;)
+            print(f'{name}, продукция склада:\n')
+            for item, value in store.items.items(): print(f'{item.capitalize()}: {value}')
+            print(f'\n{name}, продукция магазина:\n')
+            for item, value in shop.items.items(): print(f'{item.capitalize()}: {value}')
+
+            direct_transin = int(input(f'1. Сделать перемещение СКЛАД --> МАГАЗИН\n'
+                                       f'2. Сделать перемещение МАГАЗИН --> СКЛАД\n'
+                                       f'0. Отмена\n'
+                                       f'Введи цифру: '))
+            if direct_transin == 1:
+                _from = 'склад'
+                to = 'магазин'
+            if direct_transin == 2:
+                _from = 'магазин'
+                to = 'склад'
+
+            item_transit = input(f'{name}, введи название товара для перемещения: ')
+            value_transit = int(input(f'{name}, введи количество товара для перемещения: '))
+
+            
+
+            user_request: {
+                '_from': _from,
+                'to': to,
+                'amount': value_transit,
+                'product': item_transit
+            }
+
+            store_items = {
+                'кола': 10,
+                'фанта': 10,
+                'мороженка': 30,
+                'печенька': 20,
+            }
+            request = Request(user_request)
+
+        if choise == 4:  # Сделать перемещение товара из МАГАЗИНА на СКЛАД (пульнем ООП по воробьям ;)
+            pass
+
+        if choise == 5:  # Внести новые позиции на СКЛАД
+            print(f'{name}, продукция склада:\n')
+            for item, value in store.items.items(): print(f'{item.capitalize()}: {value}')
+
+            print(f'\n{name}, можно внести изменения в имеющийся товар или добавить новый...')
+            item = input(f'Введи название товара: ').lower()
+            value = int(input(f'{name} введи количество товара: '))
+
+            store.items.update({item: value})
+
+        if choise == 6:  # Завершение работы программы
+            print(f'{name}, хорошего дня. Завершение программы...')
+            break
+        input(f'\n{name}, нажми ENTER для продолжения... ')
+
 
 if __name__ == '__main__':
     main()
