@@ -102,19 +102,17 @@ class Shop(Store):
 
 class Request:
     def __init__(self, data):
-        self.data = self._split_data(data)
-        self.from_ = self.data[4]
-        self.to = self.data[6]
-        self.amount = int(self.data[1])
-        self.product = self.data[2]
+        self.from_ = data['_from']
+        self.to = data['to']
+        self.amount = int(data['amount'])
+        self.product = data['product']
+
+    def __repr__(self):
+        return f'Перемещение из: {self.from_}\nв: {self.to}\nнаименование: {self.product}\nколичество: {self.amount}'
 
     @staticmethod
     def _split_data(data):
         return data.split(' ')
-
-    def __repr__(self):
-        return f'{self.data[0]} {self.data[1]} {self.data[2]} ' \
-               f'{self.data[3]}{self.data[4]}{self.data[5]} {self.data[6]}'
 
 
 def main_0():
@@ -150,6 +148,7 @@ def main_0():
 
 
 def main():
+    global _from, to
     store = Store()
     shop = Shop()
     store_items = {
@@ -167,10 +166,9 @@ def main():
         choise = int(input(f'{name}, доступные действия:\n\n'
                            f'1. Запросить содержимое СКЛАДА\n'
                            f'2. Запросить содержимое МАГАЗИНА\n'
-                           f'3. Сделать перемещение товара из СКЛАДА в МАГАЗИН\n'
-                           f'4. Сделать перемещение товара из МАГАЗИНА на СКЛАД\n'
-                           f'5. Внести изменения на СКЛАДЕ (пополнение/корректировки)\n'
-                           f'6. Выход\n\n'
+                           f'3. Сделать перемещение товара\n'
+                           f'4. Внести изменения на СКЛАДЕ (пополнение/корректировки)\n'
+                           f'5. Выход\n\n'
                            f'Введи цифру:'))
 
         if choise == 1:  # Отображение содержимого склада
@@ -199,6 +197,8 @@ def main():
                                        f'2. Сделать перемещение МАГАЗИН --> СКЛАД\n'
                                        f'0. Отмена\n'
                                        f'Введи цифру: '))
+            if direct_transin == 0:
+                continue
             if direct_transin == 1:
                 _from = 'склад'
                 to = 'магазин'
@@ -206,30 +206,25 @@ def main():
                 _from = 'магазин'
                 to = 'склад'
 
+
             item_transit = input(f'{name}, введи название товара для перемещения: ')
             value_transit = int(input(f'{name}, введи количество товара для перемещения: '))
 
-            
-
-            user_request: {
+            #TODO Check value prodict
+            user_request = {
                 '_from': _from,
                 'to': to,
                 'amount': value_transit,
                 'product': item_transit
             }
 
-            store_items = {
-                'кола': 10,
-                'фанта': 10,
-                'мороженка': 30,
-                'печенька': 20,
-            }
             request = Request(user_request)
-
+            print(request)
+            # TODO Transfer of product prodict
         if choise == 4:  # Сделать перемещение товара из МАГАЗИНА на СКЛАД (пульнем ООП по воробьям ;)
             pass
 
-        if choise == 5:  # Внести новые позиции на СКЛАД
+        if choise == 4:  # Внести новые позиции на СКЛАД
             print(f'{name}, продукция склада:\n')
             for item, value in store.items.items(): print(f'{item.capitalize()}: {value}')
 
@@ -239,7 +234,7 @@ def main():
 
             store.items.update({item: value})
 
-        if choise == 6:  # Завершение работы программы
+        if choise == 5:  # Завершение работы программы
             print(f'{name}, хорошего дня. Завершение программы...')
             break
         input(f'\n{name}, нажми ENTER для продолжения... ')
@@ -247,3 +242,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
