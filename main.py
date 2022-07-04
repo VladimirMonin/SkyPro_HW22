@@ -99,7 +99,7 @@ class Store(AbstractStorage):
     def check_name_product(self, product: str) -> dict | None:
         """Проверяет наличие записи о товаре на складе. Вернет словарь Товар \ количество
         или None"""
-        products_dict = self.get_items
+        products_dict = self.items
         if product in products_dict:
             return {product: products_dict[product]}
         else:
@@ -113,13 +113,6 @@ class Store(AbstractStorage):
             return value
         else:
             return value
-
-    def get_transit(self, transit):
-        from_ = transit.from_
-        to = transit.to
-        amount = transit.amount
-        product = transit.product
-        pass
 
 
 class Shop(Store):
@@ -191,8 +184,9 @@ def main():
             print(f'{name}, продукция склада:\n')
             for item, value in store.items.items(): print(f'{item.capitalize()}: {value}')  # Выводим продукцию склада
             print(f'Всего продукции склада: {store.count_value_product}')  # Выводим общие объёмы продукции склада
-            print(f'Свободного места на складе: {store.count_free_space()}')  # Выводим сколько свободного места на складе
-            print(f'\n{name}, продукция магазина:\n')   # Аналогичные принты для магазина
+            print(
+                f'Свободного места на складе: {store.count_free_space()}')  # Выводим сколько свободного места на складе
+            print(f'\n{name}, продукция магазина:\n')  # Аналогичные принты для магазина
             print(f'Всего продукции магазина: {shop.count_value_product}')
             print(f'Свободного места в магазине: {shop.count_free_space()}\n')
             for item, value in shop.items.items(): print(f'{item.capitalize()}: {value}')
@@ -214,8 +208,10 @@ def main():
                 departure = shop  # Переменная "пункт отправления"
                 destination = store  # Переменная "пункт прибытия"
 
-            product_transit = input(f'{name}, введи название товара для перемещения: ').lower()  # Запрашиваем название товара. приводим к нижнему регистру
-            value_transit = int(input(f'{name}, введи количество товара для перемещения: '))  # Запрашиваем объём отправления. Приводим к integer
+            product_transit = input(
+                f'{name}, введи название товара для перемещения: ').lower()  # Запрашиваем название товара. приводим к нижнему регистру
+            value_transit = int(input(
+                f'{name}, введи количество товара для перемещения: '))  # Запрашиваем объём отправления. Приводим к integer
 
             # Производим нужные проверки
             # Проверка вообще наличия позиции на складе отправления
@@ -227,11 +223,12 @@ def main():
                 print(f'\n{name}, увы, на складе "{to}" нет товара с названием: "{product_transit}"')
                 continue
 
-            #Проверяем что было запрошено НЕ больше чем есть на складе отправления. Если больше - переписываем запрос.
+            # Проверяем что было запрошено НЕ больше чем есть на складе отправления. Если больше - переписываем запрос.
             if product[product_transit] < value_transit:  # Если остаток склада отправления меньше чем запросили
                 value_transit = product[product_transit]  # Отдаём всё что есть на складе
-                print(f'\nЗапрашиваемого товара "{product_transit}" на остатках склада "{to}" меньше чем было запрошено.\n'
-                      f'Сможем отгрузить только {value_transit} ед.')
+                print(
+                    f'\nЗапрашиваемого товара "{product_transit}" на остатках склада "{to}" меньше чем было запрошено.\n'
+                    f'Сможем отгрузить только {value_transit} ед.')
             # Проверяем свободное место на складе получения. Если его меньше, запрос будет переписан (чтобы товар влез))
             final_value_transit = destination.check_free_space(value_transit)
             if final_value_transit == 0:  # Если туда попадает число ноль - значит места на складе получения вообще нет. Отбой
@@ -241,7 +238,6 @@ def main():
                 print(f'\n{name}, увы, на складе "{to}" не так много свободного места под товар.\n'
                       f'Запрашиваемое перемещение будет выполнено в объеме: {final_value_transit}')
 
-
             # Формируем словарь запроса. Пункт отправления. Пункт назначения. Объем (может быть переписан). Продукция.
             user_request = {
                 '_from': _from,
@@ -249,12 +245,28 @@ def main():
                 'amount': final_value_transit,
                 'product': product_transit
             }
+
             # Формируеум объект запроса на перемещение Request
             request = Request(user_request)
             print(request)
-            # TODO Transfer of product prodict
-        if choise == 4:  # Сделать перемещение товара из МАГАЗИНА на СКЛАД (пульнем ООП по воробьям ;)
-            pass
+            # TODO Делаем само перемещение товара  x.update(red=1, blue=2) - метод update не хочет работать!((((
+
+            departure.items[request.product] -= request.amount  # Уменьшаем количество товара на складе отправления
+            if not destination.items.get(request.product, None):  # Проверяем наличие записи о товаре на складе прибытия
+                destination.items[request.product] = request.amount  # Запси нет. Надо создать.
+            else:
+                destination.items[request.product] += request.amount
+
+            print(f'Перемещение товара выполнено!')
+            print(f'{name}, продукция склада:\n')
+            for item, value in store.items.items(): print(f'{item.capitalize()}: {value}')  # Выводим продукцию склада
+            print(f'Всего продукции склада: {store.count_value_product}')  # Выводим общие объёмы продукции склада
+            print(
+                f'Свободного места на складе: {store.count_free_space()}')  # Выводим сколько свободного места на складе
+            print(f'\n{name}, продукция магазина:\n')  # Аналогичные принты для магазина
+            print(f'Всего продукции магазина: {shop.count_value_product}')
+            print(f'Свободного места в магазине: {shop.count_free_space()}\n')
+            for item, value in shop.items.items(): print(f'{item.capitalize()}: {value}')
 
         if choise == 4:  # Внести новые позиции на СКЛАД
             print(f'{name}, продукция склада:\n')
