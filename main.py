@@ -249,7 +249,6 @@ def main():
             # Формируеум объект запроса на перемещение Request
             request = Request(user_request)
             print(request)
-            # TODO Делаем само перемещение товара  x.update(red=1, blue=2) - метод update не хочет работать!((((
 
             departure.items[request.product] -= request.amount  # Уменьшаем количество товара на складе отправления
             if not destination.items.get(request.product, None):  # Проверяем наличие записи о товаре на складе прибытия
